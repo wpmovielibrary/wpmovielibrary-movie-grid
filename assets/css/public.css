@@ -41,3 +41,24 @@
 	height: 100% !important;
 	width: 100% !important;
 }
+
+#wpmlmg-movies-pagination {
+	margin: 1em auto;
+	text-align: center;
+}
+
+#wpmlmg-movies-pagination ul.page-numbers {
+	background: none repeat scroll 0% 0% #FFF;
+	border: 1px solid #DDD;
+	border-radius: 4px;
+	font-size: 1em;
+	margin: 1em 0.5em;
+	padding: 0.5em 1em;
+	text-align: center;
+}
+
+#wpmlmg-movies-pagination ul.page-numbers li {
+	display: inline-block;
+	margin: 0;
+	padding: 0.25em 0.5em;
+}

@@ -102,6 +102,8 @@ if ( ! class_exists( 'WPMovieLibrary_Movie_Grid' ) ) :
 
 			$new_rules = array(
 				$movies . '/grid/([^/]+)/?$' => 'index.php?post_type=movie&wpml_view=grid&wpml_letter=$matches[1]',
+				$movies . '/grid/([^/]+)/page/([^/]+)?$' => 'index.php?post_type=movie&wpml_view=grid&wpml_letter=$matches[1]&page=$matches[2]',
+				$movies . '/grid/page/([^/]+)?$' => 'index.php?post_type=movie&wpml_view=grid&page=$matches[1]',
 				$movies . '/grid/?$' => 'index.php?post_type=movie&wpml_view=grid',
 			);
 
@@ -305,6 +307,18 @@ if ( ! class_exists( 'WPMovieLibrary_Movie_Grid' ) ) :
 		}
 
 		/**
+		 * Generate pagination menu for Grid view
+		 * 
+		 * @since    1.0
+		 */
+		public static function movie_grid_pagination( $args ) {
+
+			$pagination = WPML_Utils::paginate_links( $args );
+
+			return $pagination;
+		}
+
+		/**
 		 * Generate Movie Grid
 		 * 
 		 * If a current letter is passed to the query use it to narrow
@@ -315,9 +329,61 @@ if ( ! class_exists( 'WPMovieLibrary_Movie_Grid' ) ) :
 		 */
 		public static function movie_grid() {
 
-			$movies = self::get_movies();
+			global $wpdb;
 
-			echo self::render_template( 'loop-movie-grid.php', array( 'movies' => $movies ) );
+			$letter = get_query_var( 'wpml_letter' );
+			$paged  = get_query_var( 'page' );
+			$total  = 0;
+
+			$movies = array();
+			$posts_per_page = 8;
+
+			if ( '' != $letter ) {
+
+				// like_escape deprecated since WordPress 4.0
+				$where  = ( method_exists( 'wpdb', 'esc_like' ) ? $wpdb->esc_like( $letter ) : like_escape( $letter ) ) . '%';
+				$result = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->posts} WHERE post_type='movie' AND post_status='publish' AND post_title LIKE '%s' ORDER BY post_title ASC",
+						$where
+					)
+				);
+				$total = count( $result );
+
+				if ( ! empty( $result ) )
+					foreach ( $result as $r )
+						$movies[] = $r->ID;
+			}
+
+			$args = array(
+				'posts_per_page' => $posts_per_page,
+				'offset'         => max( 0, ( $paged - 1 ) * $posts_per_page ),
+				'orderby'        => 'post_title',
+				'order'          => 'ASC',
+				'post_type'      => 'movie',
+				'post_status'    => 'publish'
+			);
+
+			if ( ! empty( $movies ) )
+				$args['post__in'] = $movies;
+
+			$movies = get_posts( $args );
+
+			$slug = WPML_Settings::wpml__movie_rewrite();
+			$args = array(
+				'type'    => 'list',
+				'total'   => ceil( ( $total ) / $posts_per_page ),
+				'current' => max( 1, $paged ),
+				'format'  => home_url( "{$slug}/grid/{$letter}/page/%#%/" ),
+			);
+
+			$paginate = self::movie_grid_pagination( $args );
+			$paginate = '<div id="wpmlmg-movies-pagination">' . $paginate . '</div>';
+
+			$content  = self::render_template( 'loop-movie-grid.php', array( 'movies' => $movies ) );
+			$content  = $content . $paginate;
+
+			echo $content;
 		}
 
 		/**
@@ -333,42 +399,7 @@ if ( ! class_exists( 'WPMovieLibrary_Movie_Grid' ) ) :
 		 */
 		private static function get_movies() {
 
-			global $wpdb;
-
-			$letter = get_query_var( 'wpml_letter' );
-
-			$movies = array();
-			$posts_per_page = 20;
-
-			if ( '' != $letter ) {
-
-				$posts_per_page = -1;
-				// like_escape deprecated since WordPress 4.0
-				$letter = ( method_exists( 'wpdb', 'esc_like' ) ? $wpdb->esc_like( $letter ) : like_escape( $letter ) ) . '%';
-				$result = $wpdb->query(
-					$wpdb->prepare(
-						"SELECT ID FROM {$wpdb->posts} WHERE post_type='movie' AND post_status='publish' AND post_title LIKE '%s' ORDER BY post_title ASC",
-						$letter
-					)
-				);
-
-				foreach ( $result as $r )
-					$movies[] = $r->ID;
-			}
-
-			$args = array(
-				'posts_per_page' => $posts_per_page,
-				'offset'         => 0,
-				'orderby'        => 'post_title',
-				'order'          => 'ASC',
-				'post_type'      => 'movie',
-				'post_status'    => 'publish'
-			);
-
-			if ( ! empty( $movies ) )
-				$args['post__in'] = $movies;
-
-			$movies = get_posts( $args );
+			
 
 			return $movies;
 		}
