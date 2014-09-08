@@ -1,0 +1,43 @@
+
+#wpmlmg-breadcrumb-list {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 1em;
+	margin: 1em 0.5em;
+	padding: 0.5em 1em;
+	text-align: center;
+}
+
+#wpmlmg-breadcrumb-list .wpmlmg-breadcrumb-list-item {
+	display: inline-block;
+	border-left: 1px solid #ddd;
+	padding: 0.15rem 0.5rem;
+}
+
+#wpmlmg-breadcrumb-list .wpmlmg-breadcrumb-list-item:first-child {
+	border-left: 0;
+}
+
+#wpmlmg-breadcrumb-list .wpmlmg-breadcrumb-list-item.active {
+	background: #ddd;
+	font-weight: bold;
+}
+
+#wpmlmg-movie-grid {
+	margin: 1em 0.5em;
+	text-align: center;
+}
+
+.wpmlmg-movie-grid .movie {
+	display: inline-block;
+	margin: 0.25em;
+	overflow: hidden;
+	height: 300px;
+	width: 220px;
+}
+
+.wpmlmg-movie-grid .movie .wp-post-image {
+	height: 100% !important;
+	width: 100% !important;
+}

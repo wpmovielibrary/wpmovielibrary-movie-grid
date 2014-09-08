@@ -46,10 +46,12 @@ define( 'WPMLMG_REQUIRED_WPML_VERSION',  '1.2' );
  *
  * @return   boolean
  */
-function is_wpml_active() {
+if ( ! function_exists( 'is_wpml_active' ) ) :
+	function is_wpml_active() {
 
-	return defined( 'WPML_VERSION' );
-}
+		return defined( 'WPML_VERSION' );
+	}
+endif;
 
 /**
  * Checks if the system requirements are met
@@ -110,11 +112,11 @@ if ( wpmlmg_requirements_met() ) {
 
 	if ( class_exists( 'WPMovieLibrary_Movie_Grid' ) ) {
 		$GLOBALS['wpmlmg'] = new WPMovieLibrary_Movie_Grid();
-		register_activation_hook(   __FILE__, array( $GLOBALS['wpmltr'], 'activate' ) );
-		register_deactivation_hook( __FILE__, array( $GLOBALS['wpmltr'], 'deactivate' ) );
+		register_activation_hook(   __FILE__, array( $GLOBALS['wpmlmg'], 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $GLOBALS['wpmlmg'], 'deactivate' ) );
 	}
 
-	WPMovieLibrary_Trailers::require_wpml_first();
+	WPMovieLibrary_Movie_Grid::require_wpml_first();
 
 	if ( is_admin() ) {
 		

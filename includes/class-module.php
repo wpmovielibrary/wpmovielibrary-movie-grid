@@ -5,7 +5,7 @@ if ( ! class_exists( 'WPMTRL_Module' ) ) {
 	/**
 	 * Abstract class to define/implement base methods for all module classes
 	 */
-	abstract class WPMLTR_Module {
+	abstract class WPMLMG_Module {
 
 		private static $instances = array();
 
